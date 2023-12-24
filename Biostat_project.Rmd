@@ -1,0 +1,95 @@
+---
+title: "Mortality predictors in heamtological patients, admitted to intensive care unit: a single-centre observational study"
+author: "Sergei Vladimirov"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	error = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+
+#install.packages('hrbrthemes')
+
+library(tidyverse)
+library(magrittr)
+library(hms)
+library(RSQLite)
+library(DBI)
+library(kableExtra)
+library(ggsci)
+library(patchwork)
+library(tufte)
+library(ggthemes)
+library(ggplot2)
+library(finalfit)
+library(lubridate)
+library(janitor)
+library(readxl)
+library(readr)
+
+
+pacman::p_load(
+  rio,          # File import
+  here,         # File locator
+  skimr,        # get overview of data
+  tidyverse,    # data management + ggplot2 graphics 
+  gtsummary,    # summary statistics and tests
+  rstatix,      # summary statistics and statistical tests
+  janitor,      # adding totals and percents to tables
+  scales,       # easily convert proportions to percents  
+  flextable,
+  epicalc
+  )
+
+
+```
+
+# Abstract
+
+Despite progress in therapeutic options and improved prognosis of hematological
+patients in recent years, the mortality of patients with hematological malignancies
+(HM) requiring admission to intensive care units (ICU) remains high. According to
+the results of the latest observational research, the factors of poor outcome in such
+patients vary.
+I am going to identify prognostic factors associated with the ICU and hospital
+mortality in the cohort of HM patients who were admitted to ICU in my hospital
+between April 2022 and April 2023.
+My dataset contains 43 variables of 69 consecutive critically ill patients. The
+following parameters were recorded within 24 h of ICU admission: demographic
+data, diagnosis, some major laboratory data, values of severity scales (SOFA and
+SAPS), indicators of vital functions. Three columns contain information about
+outcomes (dead_icu - outcome of ICU case, dead_hospital - outcome of overall
+hospitalization, icu_los - length of stay in ICU).
+I am planning to perform a regression analysis in order to reveal some meaningful
+factors related to ICU and hospital mortality in these patients.
+Source of data: electronic health records.
+
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+Reference Style Links and Images
+
+```{r echo=FALSE, include= TRUE, }
+#  Importing and fixing final dataset
+
+original_data <- read_csv('final_project_df.csv')
+
+original_data <- original_data %>% 
+  mutate_if(is.character, as.factor) %>%
+  mutate(neutropenia = as.factor(neutropenia)) %>% 
+  select(!c(age_group, age_group_20, septic_shock, on_mv))
+
+head(original_data)
+
+
+
+```
+
+
+
