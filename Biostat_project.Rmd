@@ -1,8 +1,8 @@
 ---
-title: "Mortality predictors in heamtological patients, admitted to intensive care unit: a single-centre observational study"
+title: "Mortality predictors in hematological patients, admitted to intensive care unit: a single-centre observational study"
 author: "Sergei Vladimirov"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +13,8 @@ knitr::opts_chunk$set(
 	warning = FALSE
 )
 
-#install.packages('hrbrthemes')
+library(blorr)
+library(stargazer)
 
 library(tidyverse)
 library(magrittr)
@@ -31,61 +32,191 @@ library(lubridate)
 library(janitor)
 library(readxl)
 library(readr)
-
-
-pacman::p_load(
-  rio,          # File import
-  here,         # File locator
-  skimr,        # get overview of data
-  tidyverse,    # data management + ggplot2 graphics 
-  gtsummary,    # summary statistics and tests
-  rstatix,      # summary statistics and statistical tests
-  janitor,      # adding totals and percents to tables
-  scales,       # easily convert proportions to percents  
-  flextable,
-  epicalc
-  )
+library(hrbrthemes)
+library(flextable)
+library(gtsummary)
+#install.packages('pROC')
+library(pROC)
+library(GGally)
+#install.packages('DiagrammeR')
+library(DiagrammeR)
+#install.packages('sjPlot')
+library(sjPlot)
 
 
 ```
 
 # Abstract
 
-Despite progress in therapeutic options and improved prognosis of hematological
-patients in recent years, the mortality of patients with hematological malignancies
-(HM) requiring admission to intensive care units (ICU) remains high. According to
-the results of the latest observational research, the factors of poor outcome in such
-patients vary.
-I am going to identify prognostic factors associated with the ICU and hospital
-mortality in the cohort of HM patients who were admitted to ICU in my hospital
-between April 2022 and April 2023.
-My dataset contains 43 variables of 69 consecutive critically ill patients. The
-following parameters were recorded within 24 h of ICU admission: demographic
-data, diagnosis, some major laboratory data, values of severity scales (SOFA and
-SAPS), indicators of vital functions. Three columns contain information about
-outcomes (dead_icu - outcome of ICU case, dead_hospital - outcome of overall
-hospitalization, icu_los - length of stay in ICU).
-I am planning to perform a regression analysis in order to reveal some meaningful
-factors related to ICU and hospital mortality in these patients.
-Source of data: electronic health records.
+Purpose:
+Previous research showed conflicting results about mortality predictors in critically ill patients with hematological malignancies (HM). The primary aim of this study was to determine mortality in critically ill patients with HM in intensive care unit (ICU) and to reveal risk factors predicting the outcome.
 
-First Header  | Second Header
-------------- | -------------
-Content Cell  | Content Cell
-Content Cell  | Content Cell
-Reference Style Links and Images
+Methods and materials:
+All patients with HM admitted to ICU at our hospital during 1 year were enrolled. Clinical data upon ICU admission was collected and then outcomes were estimated.
+
+Results:
+ICU mortality was 52% among 98 HM patients.
+According to multivariate analysis, male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with the outcome.
+
+Conclusion:
+We found three independent predictors for ICU mortality. Further research is
+needed to validate current findings and reveal new mortality predictors in critically ill HM patients.
+
+```{r echo=FALSE, include = FALSE }
+#  Importing and fixing final dataset
+
+original_data <- read_csv('final_project_df.csv')
+
+
+original_data <- original_data %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(neutropenia = as.factor(neutropenia)) %>% 
+   mutate(
+    resp_insuf = as.factor(case_when(
+      sofa_resp > 0 ~ 1,
+      sofa_resp < 1 ~ 0
+    )),
+    neur_def = as.factor(case_when(
+      sofa_gcs > 0 ~ 1,
+      sofa_gcs < 1 ~ 0
+    )),
+    hep_insuf = as.factor(case_when(
+      sofa_bil > 0 ~ 1,
+      sofa_bil < 1 ~ 0
+    )),
+    hemod_instab = as.factor(case_when(
+      sofa_map > 0 ~ 1,
+      sofa_map < 1 ~ 0
+    )),
+    thrombocytopenia = as.factor(case_when(
+      sofa_plt > 0 ~ 1,
+      sofa_plt < 1 ~ 0
+    )),
+    renal_insuf = as.factor(case_when(
+      sofa_renal > 0 ~ 1,
+      sofa_renal < 1 ~ 0
+    ))
+    ) %>% 
+  select(id, gender, age, cci, diagnosis,
+         disease_status, days_bfr_icu, 
+         sofa, neutropenia, is_deceased)
+
+
+```
+
+
+# Introduction
+
+Patients with hematologic malignancies (HMs) have an increased risk of death compared to other oncology patients in settings of intensive care unit (ICU). According to previous research1, the predictive value of different admission factors is constantly changing, and several studies on this topic have conflicting results.
+Our research question is addressed to identifying factors in the condition of hematological patients that can predict a poor ICU outcome. The primary aim of this study was to determine ICU mortality and risk factors predicting the outcome of critically ill patients with HMs.
+We hypothesized that there are some significant factors in the condition of HM patients at the moment of ICU admission that are associated with mortality.
+
+# Methods
+
+Our research is an observational, single-center study.
+We retrospectively evaluated baseline characteristics of adult HM patients non-electively admitted to the medical ICU of our hospital from July 1, 2022 to June 30,2023. All the HM diagnoses were based on the pathological examination results or medical records. All data were obtained from a local ICU electronic database.
+Cases with a critical amount of missing data, as well as those who died or
+transferred to the floor within 24 hours were excluded from the study.
+
+```{r}
+df_variable <- colnames(original_data)
+
+var_definition <- c(
+  "anonymized identical number of patient",
+  "gender of patient",
+  "age of patient",
+  "Charlson Comorbidity Index - most widely used scoring system for comorbidities",
+  "type of hematological malignancy",
+  "status of HM progression",
+  "number of days in hospital before admission to ICU",
+  "sequential organ failure assessment score (SOFA score), is used  to determine the extent of organ function or rate of failure",
+  "absolute neutrophil count < 1000 per mm3",
+  "outcome (1 is death, 0 is survival)")
+
+var_type <- c(
+  "numerical",
+  "categorical, binary",
+  "numerical, years",
+  "numerical, points",
+  "categorical",
+  "categorical: p (progression) - relapsed or refractory disease, n - newly diagnosed",
+  "numerical, days",
+  "numerical, points",
+  "categorical, binary (1 = yes, 0 = no)",
+  "categorical, binary (1 is death, 0 is survival)")
+
+
+
+var_status <-  c(
+  "independent",
+  "independent",
+  "independent",
+  "independent",
+  "independent",
+  "independent",
+  "independent",
+  "independent",
+  "independent",
+  "dependent")
+  
+var_df <-  
+bind_cols(df_variable, var_definition, var_type, var_status) %>% 
+  rename( variable = '...1', definition = '...2', type = '...3', status = '...4')
+
+
+
+var_df %>% kable()
+#%>% flextable()
+#  theme_box() %>% 
+#  set_caption('A list of variables used in analysis')
+
+```
+
+
+Upon ICU admission, we included baseline patients’ information on demographic data, diagnosis, extent of organ dysfunction, comorbidity burden, presence of neutropenia, disease status and number of days in hospital prior to ICU referral. Based on above-mentioned information, independent variables were created, and the outcome of ICU hospitalization was set as a dependent variable (Table 1).
+This study was carried out according to the principles of the Declaration of Helsinki. Approval was granted by the local ethics committee (date: 03.08.2023 / no: 1236). Since we performed a retrospective analysis of routinely collected de-identified data, informed consents from the patients were not required. The trial was registered.
+All statistical analyses were performed using R version 4.2.1 (R Core Team, 2022).
+Сontinuous variables were described as mean (standard deviation), median (25–75 percentiles) and range. We performed a univariate analysis first to calculate the odds ratio (OR) of mortality, and statistically significant factors were then used in a multivariate logistic regression model to determine outcome prediction. Receiver operating curve (ROC) was done for the final model. In this research, all the tests were two-sided, and p < 0.05 was considered as statistically significant.
+
 
 ```{r echo=FALSE, include= TRUE, }
 #  Importing and fixing final dataset
 
 original_data <- read_csv('final_project_df.csv')
 
-original_data <- original_data %>% 
+
+original_data <- original_data %>%
   mutate_if(is.character, as.factor) %>%
   mutate(neutropenia = as.factor(neutropenia)) %>% 
-  select(!c(age_group, age_group_20, septic_shock, on_mv))
-
-head(original_data)
+   mutate(
+    resp_insuf = as.factor(case_when(
+      sofa_resp > 0 ~ 1,
+      sofa_resp < 1 ~ 0
+    )),
+    neur_def = as.factor(case_when(
+      sofa_gcs > 0 ~ 1,
+      sofa_gcs < 1 ~ 0
+    )),
+    hep_insuf = as.factor(case_when(
+      sofa_bil > 0 ~ 1,
+      sofa_bil < 1 ~ 0
+    )),
+    hemod_instab = as.factor(case_when(
+      sofa_map > 0 ~ 1,
+      sofa_map < 1 ~ 0
+    )),
+    thrombocytopenia = as.factor(case_when(
+      sofa_plt > 0 ~ 1,
+      sofa_plt < 1 ~ 0
+    )),
+    renal_insuf = as.factor(case_when(
+      sofa_renal > 0 ~ 1,
+      sofa_renal < 1 ~ 0
+    ))
+    ) %>% 
+  select(id, gender, age, cci, diagnosis,
+         disease_status, days_bfr_icu, 
+         sofa, neutropenia, is_deceased)
 
 
 
