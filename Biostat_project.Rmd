@@ -233,7 +233,7 @@ knitr::include_graphics("desc_table.png")
 
 The ICU mortality was 52%. We performed univariate analysis (Table 3) to calculate the odds ratio of mortality for each of collected covariates (Table 3). All continuous variables were checked for linearity beforehand (Figure 2).
 
-```{r echo=TRUE, eval=FALSE}
+```{r echo=TRUE, eval=FALSE, fig.align='left'}
 
 # code for linearuty checking
 
@@ -253,7 +253,7 @@ original_data %>%
 **Figure 2. Checking numeric variables for linearity**
 
 *All of the slopes are monotonic, i.e. linear*
-```{r echo=FALSE}
+```{r echo=FALSE, fig.align='left'}
 
 original_data %>% 
   select(is_deceased, age, cci, sofa, days_bfr_icu) %>% 
