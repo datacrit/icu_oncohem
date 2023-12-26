@@ -319,9 +319,8 @@ original_data %>%
  #        subtitle = "All of the slopes are monotonic, i.e. linear")
 ```
 
-**Figure 2. Checking numeric variables for linearity**
-
-*All of the slopes are monotonic, i.e. linear*
+**Figure 2. Checking numeric variables for linearity.** *All of the
+slopes are monotonic, i.e. linear*
 <img src="Biostat_project_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto auto auto 0;" />
 
 Three statistically significant factors were identified in univariate

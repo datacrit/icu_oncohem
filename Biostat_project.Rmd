@@ -250,8 +250,7 @@ original_data %>%
  #        subtitle = "All of the slopes are monotonic, i.e. linear")
   
 ```
-**Figure 2. Checking numeric variables for linearity**
-
+**Figure 2. Checking numeric variables for linearity.**
 *All of the slopes are monotonic, i.e. linear*
 ```{r echo=FALSE, fig.align='left'}
 
