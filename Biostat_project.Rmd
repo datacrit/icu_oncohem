@@ -62,48 +62,6 @@ According to multivariate analysis, male sex (OR 2.75, CI: 1.15–6.88, p = 0.02
 We found three independent predictors for ICU mortality. Further research is
 needed to validate current findings and reveal new mortality predictors in critically ill HM patients.
 
-```{r echo=FALSE, include = FALSE }
-#  Importing and fixing final dataset
-
-original_data <- read_csv('final_project_df.csv')
-
-
-original_data <- original_data %>%
-  mutate_if(is.character, as.factor) %>%
-  mutate(neutropenia = as.factor(neutropenia)) %>% 
-   mutate(
-    resp_insuf = as.factor(case_when(
-      sofa_resp > 0 ~ 1,
-      sofa_resp < 1 ~ 0
-    )),
-    neur_def = as.factor(case_when(
-      sofa_gcs > 0 ~ 1,
-      sofa_gcs < 1 ~ 0
-    )),
-    hep_insuf = as.factor(case_when(
-      sofa_bil > 0 ~ 1,
-      sofa_bil < 1 ~ 0
-    )),
-    hemod_instab = as.factor(case_when(
-      sofa_map > 0 ~ 1,
-      sofa_map < 1 ~ 0
-    )),
-    thrombocytopenia = as.factor(case_when(
-      sofa_plt > 0 ~ 1,
-      sofa_plt < 1 ~ 0
-    )),
-    renal_insuf = as.factor(case_when(
-      sofa_renal > 0 ~ 1,
-      sofa_renal < 1 ~ 0
-    ))
-    ) %>% 
-  select(id, gender, age, cci, diagnosis,
-         disease_status, days_bfr_icu, 
-         sofa, neutropenia, is_deceased)
-
-
-```
-
 
 ## Introduction
 
@@ -118,12 +76,66 @@ We retrospectively evaluated baseline characteristics of adult HM patients non-e
 Cases with a critical amount of missing data, as well as those who died or
 transferred to the floor within 24 hours were excluded from the study.
 
-```{r, out.width="100%"}
+**Figure 1. Flowchart of the study**
+```{r, out.width="70%", echo=FALSE, fig.cap = "Figure 1. Flowchart od the study", fig.align='left'}
+
+
+# code for this plot (could not render it in github document, works in html output)
+flow_chart <- grViz("                           # All instructions are within a large character string
+digraph surveillance_diagram {    # 'digraph' means 'directional graph', then the graph name 
+  
+  # graph statement
+  #################
+  graph [layout = dot,
+         rankdir = TB,
+         overlap = true, 
+         fontsize = 10]
+  
+  # nodes
+  #######
+  node [shape = rectangle,           # shape = rectangle
+       fixedsize = false
+       width = 1.3,               # width of rectangles
+       fontsize = 10]
+  Primary [label = '127 patients were evaluated']                     # names of nodes
+  Secondary [label = '99 patients were included'] 
+  Dead [label = '51 patients died']
+  Alive [label = '47 patients survived']
+
+  # edges
+  #######
+  Primary   -> Secondary [label = '14 cases were exluded due to missed data
+  8 were transferred to the wards within 24h
+  7 died within 24h', fontsize = 8] 
+  Secondary -> Dead
+  Secondary -> Alive
+}
+")
+#print('Figure 1. Flowchart od the study')
 knitr::include_graphics("flow_chart.png")
+
 ```
+
 Upon ICU admission, we included baseline patients’ information on demographic data, diagnosis, extent of organ dysfunction, comorbidity burden, presence of neutropenia, disease status and number of days in hospital prior to ICU referral. Based on above-mentioned information, independent variables were created, and the outcome of ICU hospitalization was set as a dependent variable (Table 1).
 
-```{r}
+```{r echo=TRUE, include = TRUE }
+#Importing and optimizing an original dataset
+original_data <- read_csv('final_project_df.csv')
+
+
+original_data <- original_data %>%
+  mutate_if(is.character, as.factor) %>%  # convert independent character variables to factors
+  mutate(neutropenia = as.factor(neutropenia)) %>%  # convert binary independent variable to factor
+  select(id, gender, age, cci, diagnosis,
+         disease_status, days_bfr_icu, 
+         sofa, neutropenia, is_deceased)
+
+
+```
+
+
+**Table 1. Characteristics of variables**
+```{r echo=F, fig.align='left'}
 df_variable <- colnames(original_data)
 
 var_definition <- c(
@@ -150,8 +162,6 @@ var_type <- c(
   "categorical, binary (1 = yes, 0 = no)",
   "categorical, binary (1 is death, 0 is survival)")
 
-
-
 var_status <-  c(
   "independent",
   "independent",
@@ -170,9 +180,7 @@ bind_cols(df_variable, var_definition, var_type, var_status) %>%
 
 
 var_df %>% kable()
-#%>% flextable()
-#  theme_box() %>% 
-#  set_caption('A list of variables used in analysis')
+
 
 ```
 
@@ -185,8 +193,9 @@ All statistical analyses were performed using R version 4.2.1 (R Core Team, 2022
 
 The baseline demographic and clinical characteristics of all 98 patients are given in Table 2. The patients’ mean (SD) age was 64 (14) years, and just over half (55%) were females. Acute leukemia was the most frequent diagnosis (43%), followed by multiple myeloma (26%), then non-Hodgkin’s lymphoma (18%). 48 (49%) of patients had refractory or relapsed disease status. 35 (36%) patients had neutropenia on admission. Median (IQR) time in the ward before admission to ICU was 11 (3, 20) days. Mean (SD) SOFA score on ICU referral was 6.38 (2.37) points, and Charlson Comorbidity Index was 6.1 (2.25) points.
 
+```{r, out.width="100%", echo=TRUE, eval=FALSE, fig.align='left'}
 
-```{r, out.width="100%"}
+# I have experienced some problems with rendering this summary table in github output format, so I have uploaded png with the result
 
 original_data %>% 
   select(gender, age, cci, diagnosis,
@@ -207,7 +216,15 @@ original_data %>%
       stat_2 ~ "**Dead**  \n N = {n}")) %>%
   modify_footnote(update = everything() ~ NA) %>%
   add_overall() -> desc_table
-# I have experienced some problems with rendering this summary table in github document, so I will upload png with the result
+
+
+knitr::include_graphics("desc_table.png")
+
+```
+
+**Table 2. Baseline characteristics of patients**
+
+```{r, out.width="100%", echo=FALSE,  fig.align='left'}
 
 knitr::include_graphics("desc_table.png")
 
@@ -216,8 +233,9 @@ knitr::include_graphics("desc_table.png")
 
 The ICU mortality was 52%. We performed univariate analysis (Table 3) to calculate the odds ratio of mortality for each of collected covariates (Table 3). All continuous variables were checked for linearity beforehand (Figure 2).
 
-```{r}
+```{r echo=TRUE, eval=FALSE}
 
+# code for linearuty checking
 
 original_data %>% 
   select(is_deceased, age, cci, sofa, days_bfr_icu) %>% 
@@ -226,11 +244,31 @@ original_data %>%
   ggplot(aes(x = value, y = is_deceased)) + 
   geom_point(size = 0.5, alpha = 0.5) +
   geom_smooth(method = "loess") + 
-  facet_wrap(~predictors, scales = "free_x")+
-  labs ( title = "Fig.2  Checking numeric variables for linearity",
-         subtitle = "All of the slopes are monotonic, i.e. linear")
+  facet_wrap(~predictors, scales = "free_x")
+#  +
+#  labs ( title = "Fig.2  Checking numeric variables for linearity",
+ #        subtitle = "All of the slopes are monotonic, i.e. linear")
   
 ```
+**Figure 2. Checking numeric variables for linearity**
+
+*All of the slopes are monotonic, i.e. linear*
+```{r echo=FALSE}
+
+original_data %>% 
+  select(is_deceased, age, cci, sofa, days_bfr_icu) %>% 
+  pivot_longer(all_of(c("age", "sofa", "sofa", "cci",
+                        "days_bfr_icu")), names_to = "predictors") %>% 
+  ggplot(aes(x = value, y = is_deceased)) + 
+  geom_point(size = 0.5, alpha = 0.5) +
+  geom_smooth(method = "loess") + 
+  facet_wrap(~predictors, scales = "free_x")
+#  +
+#  labs ( title = "Fig.2  Checking numeric variables for linearity",
+ #        subtitle = "All of the slopes are monotonic, i.e. linear")
+  
+```
+
 
 Three statistically significant factors were identified in univariate model.
 

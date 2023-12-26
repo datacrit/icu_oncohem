@@ -3,7 +3,7 @@ malignancies, admitted to intensive care unit: a single-center
 observational study
 ================
 Sergei Vladimirov
-2023-12-26
+2023-12-27
 
 ## Abstract
 
@@ -52,14 +52,30 @@ obtained from a local ICU electronic database. Cases with a critical
 amount of missing data, as well as those who died or transferred to the
 floor within 24 hours were excluded from the study.
 
-<img src="flow_chart.png" width="100%" /> Upon ICU admission, we
-included baseline patients’ information on demographic data, diagnosis,
-extent of organ dysfunction, comorbidity burden, presence of
-neutropenia, disease status and number of days in hospital prior to ICU
-referral. Based on above-mentioned information, independent variables
-were created, and the outcome of ICU hospitalization was set as a
-dependent variable (Table 1).
+**Figure 1. Flowchart of the study**
+<img src="flow_chart.png" title="Figure 1. Flowchart od the study" alt="Figure 1. Flowchart od the study" width="70%" style="display: block; margin: auto auto auto 0;" />
 
+Upon ICU admission, we included baseline patients’ information on
+demographic data, diagnosis, extent of organ dysfunction, comorbidity
+burden, presence of neutropenia, disease status and number of days in
+hospital prior to ICU referral. Based on above-mentioned information,
+independent variables were created, and the outcome of ICU
+hospitalization was set as a dependent variable (Table 1).
+
+``` r
+#Importing and optimizing an original dataset
+original_data <- read_csv('final_project_df.csv')
+
+
+original_data <- original_data %>%
+  mutate_if(is.character, as.factor) %>%  # convert independent character variables to factors
+  mutate(neutropenia = as.factor(neutropenia)) %>%  # convert binary independent variable to factor
+  select(id, gender, age, cci, diagnosis,
+         disease_status, days_bfr_icu, 
+         sofa, neutropenia, is_deceased)
+```
+
+**Table 1. Characteristics of variables**
 <table>
 <thead>
 <tr>
@@ -251,14 +267,62 @@ time in the ward before admission to ICU was 11 (3, 20) days. Mean (SD)
 SOFA score on ICU referral was 6.38 (2.37) points, and Charlson
 Comorbidity Index was 6.1 (2.25) points.
 
-<img src="desc_table.png" width="100%" />
+``` r
+# I have experienced some problems with rendering this summary table in github output format, so I have uploaded png with the result
+
+original_data %>% 
+  select(gender, age, cci, diagnosis,
+         disease_status, days_bfr_icu, 
+         sofa, neutropenia, is_deceased) %>% 
+  tbl_summary(     
+    by = is_deceased,     # stratify entire table by outcome
+    type = all_continuous() ~ "continuous2",
+    statistic = list(all_continuous() ~ c(
+      "{mean} ({sd})",                             # line 1: mean and SD
+      "{median} ({p25}, {p75})",                   # line 2: median and IQR
+      "{min}, {max}"))) %>% 
+      
+  bold_labels() %>%
+  modify_header(
+    list(
+      stat_1 ~ "**Survived**  \n N = {n}",
+      stat_2 ~ "**Dead**  \n N = {n}")) %>%
+  modify_footnote(update = everything() ~ NA) %>%
+  add_overall() -> desc_table
+
+
+knitr::include_graphics("desc_table.png")
+```
+
+**Table 2. Baseline characteristics of patients**
+
+<img src="desc_table.png" width="100%" style="display: block; margin: auto auto auto 0;" />
 
 The ICU mortality was 52%. We performed univariate analysis (Table 3) to
 calculate the odds ratio of mortality for each of collected covariates
 (Table 3). All continuous variables were checked for linearity
 beforehand (Figure 2).
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+``` r
+# code for linearuty checking
+
+original_data %>% 
+  select(is_deceased, age, cci, sofa, days_bfr_icu) %>% 
+  pivot_longer(all_of(c("age", "sofa", "sofa", "cci",
+                        "days_bfr_icu")), names_to = "predictors") %>% 
+  ggplot(aes(x = value, y = is_deceased)) + 
+  geom_point(size = 0.5, alpha = 0.5) +
+  geom_smooth(method = "loess") + 
+  facet_wrap(~predictors, scales = "free_x")
+#  +
+#  labs ( title = "Fig.2  Checking numeric variables for linearity",
+ #        subtitle = "All of the slopes are monotonic, i.e. linear")
+```
+
+**Figure 2. Checking numeric variables for linearity**
+
+*All of the slopes are monotonic, i.e. linear*
+![](Biostat_project_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Three statistically significant factors were identified in univariate
 model.
@@ -538,9 +602,9 @@ AIC
 </tr>
 </table>
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Biostat_project_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Biostat_project_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ## Discussion
 
