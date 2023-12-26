@@ -217,6 +217,23 @@ knitr::include_graphics("desc_table.png")
 The ICU mortality was 52%. We performed univariate analysis (Table 3) to calculate the odds ratio of mortality for each of collected covariates (Table 3). All continuous variables were checked for linearity beforehand (Figure 2).
 
 ```{r}
+
+
+original_data %>% 
+  select(is_deceased, age, cci, sofa, days_bfr_icu) %>% 
+  pivot_longer(all_of(c("age", "sofa", "sofa", "cci",
+                        "days_bfr_icu")), names_to = "predictors") %>% 
+  ggplot(aes(x = value, y = is_deceased)) + 
+  geom_point(size = 0.5, alpha = 0.5) +
+  geom_smooth(method = "loess") + 
+  facet_wrap(~predictors, scales = "free_x")+
+  labs ( title = "Fig.2  Checking numeric variables for linearity",
+         subtitle = "All of the slopes are monotonic, i.e. linear")
+  
+```
+Three statistically significant factors were identified in univariate model.
+
+```{r}
 # Basic Logistic Regression Commands
 uni_object <-  glm(is_deceased ~ gender + age + sofa + cci +
                        disease_status + days_bfr_icu, data = original_data, family = "binomial")
@@ -265,7 +282,39 @@ univar_table
 
 
 
-Statistically significant variables were checked for multicollinearity (Table 4) and then included into a multivariate regression analysis (Table 5). All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with outcome. Overall performance of multivariate model characterized by Akaike information criterion (AIC)124.71 and area under the curve (AUC) 0.74 (Figure 3).
+Statistically significant variables were checked for multicollinearity (Table 4) and then included into a multivariate regression analysis (Table 5).
+
+```{r}
+dependent <- "is_deceased"
+explanatory <- c("gender","cci", "sofa")
+original_data %>% 
+  glmmulti(dependent, explanatory) %>%
+  car::vif() %>% 
+  as.data.frame() %>%
+  add_column(c("gender", "cci", "sofa")) %>% 
+  rename(variable = 'c("gender", "cci", "sofa")', GVIF = ".") %>% 
+  select(variable, everything()) %>% kable()
+#%>% 
+ # flextable() %>% 
+ # set_caption(caption = "Generalised variance inflation factor (GVIF)")
+```
+
+
+All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with outcome. Overall performance of multivariate model characterized by Akaike information criterion (AIC)124.71 and area under the curve (AUC) 0.74 (Figure 3).
+
+
+
+```{r}
+sjPlot:: tab_model(object, 
+                    show.intercept = FALSE,
+                    show.aic = TRUE,
+                    show.r2 = FALSE,
+                    title = 'Results of multivariate analysis of factors') 
+```
+
+```{r}
+blorr::blr_roc_curve(blr_gains_table(object), title = "ROC curve for the model, AUC = 0.74" ) 
+```
 
 
 

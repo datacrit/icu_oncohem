@@ -257,6 +257,10 @@ calculate the odds ratio of mortality for each of collected covariates
 (Table 3). All continuous variables were checked for linearity
 beforehand (Figure 2).
 
+![](Biostat_project_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+Three statistically significant factors were identified in univariate
+model.
+
 <table style="border-collapse:collapse; border:none;">
 <caption style="font-weight: bold; text-align:left;">
 Results of univariate analysis of factors
@@ -387,9 +391,149 @@ AIC
 
 Statistically significant variables were checked for multicollinearity
 (Table 4) and then included into a multivariate regression analysis
-(Table 5). All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p
-= 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high
-Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were
-associated with outcome. Overall performance of multivariate model
-characterized by Akaike information criterion (AIC)124.71 and area under
-the curve (AUC) 0.74 (Figure 3).
+(Table 5).
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+variable
+</th>
+<th style="text-align:right;">
+GVIF
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+gender
+</td>
+<td style="text-align:left;">
+gender
+</td>
+<td style="text-align:right;">
+1.007099
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cci
+</td>
+<td style="text-align:left;">
+cci
+</td>
+<td style="text-align:right;">
+1.035426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sofa
+</td>
+<td style="text-align:left;">
+sofa
+</td>
+<td style="text-align:right;">
+1.034088
+</td>
+</tr>
+</tbody>
+</table>
+
+All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026),
+high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson
+Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated
+with outcome. Overall performance of multivariate model characterized by
+Akaike information criterion (AIC)124.71 and area under the curve (AUC)
+0.74 (Figure 3).
+
+<table style="border-collapse:collapse; border:none;">
+<caption style="font-weight: bold; text-align:left;">
+Results of multivariate analysis of factors
+</caption>
+<tr>
+<th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">
+ 
+</th>
+<th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; ">
+is deceased
+</th>
+</tr>
+<tr>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  text-align:left; ">
+Predictors
+</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">
+Odds Ratios
+</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">
+CI
+</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">
+p
+</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
+gender \[male\]
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+2.75
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+1.15 – 6.88
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+<strong>0.026</strong>
+</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
+sofa
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+1.30
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+1.07 – 1.62
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+<strong>0.012</strong>
+</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">
+cci
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+1.30
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+1.06 – 1.64
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">
+<strong>0.016</strong>
+</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm; border-top:1px solid;">
+Observations
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;" colspan="3">
+98
+</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+AIC
+</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">
+124.710
+</td>
+</tr>
+</table>
+
+![](Biostat_project_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
