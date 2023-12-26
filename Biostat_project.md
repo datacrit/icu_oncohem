@@ -1,32 +1,33 @@
-Mortality predictors in hematological patients, admitted to intensive
-care unit: a single-centre observational study
+Condition-related mortality predictors in patients with hematological
+malignancies, admitted to intensive care unit: a single-center
+observational study
 ================
 Sergei Vladimirov
 2023-12-26
 
-# Abstract
+## Abstract
 
-Purpose: Previous research showed conflicting results about mortality
+*Purpose:* Previous research showed conflicting results about mortality
 predictors in critically ill patients with hematological malignancies
 (HM). The primary aim of this study was to determine mortality in
 critically ill patients with HM in intensive care unit (ICU) and to
 reveal risk factors predicting the outcome.
 
-Methods and materials: All patients with HM admitted to ICU at our
+*Methods and materials:* All patients with HM admitted to ICU at our
 hospital during 1 year were enrolled. Clinical data upon ICU admission
 was collected and then outcomes were estimated.
 
-Results: ICU mortality was 52% among 98 HM patients. According to
+*Results:* ICU mortality was 52% among 98 HM patients. According to
 multivariate analysis, male sex (OR 2.75, CI: 1.15–6.88, p = 0.026),
 high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson
 Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated
 with the outcome.
 
-Conclusion: We found three independent predictors for ICU mortality.
+*Conclusion:* We found three independent predictors for ICU mortality.
 Further research is needed to validate current findings and reveal new
 mortality predictors in critically ill HM patients.
 
-# Introduction
+## Introduction
 
 Patients with hematologic malignancies (HMs) have an increased risk of
 death compared to other oncology patients in settings of intensive care
@@ -40,7 +41,7 @@ outcome of critically ill patients with HMs. We hypothesized that there
 are some significant factors in the condition of HM patients at the
 moment of ICU admission that are associated with mortality.
 
-# Methods
+## Methods
 
 Our research is an observational, single-center study. We
 retrospectively evaluated baseline characteristics of adult HM patients
@@ -238,7 +239,7 @@ Receiver operating curve (ROC) was done for the final model. In this
 research, all the tests were two-sided, and p \< 0.05 was considered as
 statistically significant.
 
-# Results
+## Results
 
 The baseline demographic and clinical characteristics of all 98 patients
 are given in Table 2. The patients’ mean (SD) age was 64 (14) years, and
@@ -258,6 +259,7 @@ calculate the odds ratio of mortality for each of collected covariates
 beforehand (Figure 2).
 
 ![](Biostat_project_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 Three statistically significant factors were identified in univariate
 model.
 
@@ -537,3 +539,83 @@ AIC
 </table>
 
 ![](Biostat_project_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+![](Biostat_project_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+## Discussion
+
+To our knowledge, this is the first observational study in Russia to
+report the prognostic value of condition and comorbidity factors related
+to ICU mortality in HM population.
+
+We retrospectively evaluated admission data of 98 critically ill
+patients for prognostic factors for ICU outcome during a 1-year period.
+The ICU mortality rate in our sample was high (52%). Male sex, high SOFA
+and CCI scores were associated with ICU mortality both in univariate and
+multivariate analysis.
+
+Mortality in our study corresponds to the average ICU mortality in
+previous studies. According to preceding research, ICU mortality in
+patients with HMs varied between 26 and 84.1%2. This wide range can be
+explained by differences in admission and discharge policy, severity of
+condition in study populations, geographic and socioeconomic factors3.
+We reassessed the prognostic significance of previously published
+factors for critically ill patients with HMs.
+
+Our findings come in line with prior research in that the severity of
+organ failure and extent of comorbidity are associated with poor ICU
+outcomes4,5. We did not reveal statistical significance of neutropenia
+and advanced disease status as prognostic factors, and it corroborates
+previous studies that defined these factors as controversial.
+
+Our multivariate model revealed male sex as a significant prognostic
+factor for ICU mortality. At this point, we do not have a firm
+explanation of this result from neither background nor foreground
+knowledge, so this finding has to be validated. This study has several
+limitations.
+
+First, due to the retrospective nature of our study some data may have
+been missed. Second, as this is a single-center study, our findings can
+hardly be generalized to the entire population.
+
+Third, due to the relatively small sample size we were unable to
+internally validate the outcome prediction model.
+
+Fourth, our study did not estimate disease-specific factors, except for
+presence of progression or relapse.
+
+Finally, due to variations in severity of cases, ICU admission and
+discharge policies, end-of-life-care protocols, we can not directly
+compare mortality rates to other studies.
+
+## Conclusion
+
+Our results demonstrated that critically ill patients with hematological
+malignancies have a high mortality. We have found that severity of organ
+failure assessed by SOFA score, high comorbidity and male gender may
+have an impact on ICU mortality. Prospective multicentre studies may
+help to explore validity of these results. Other factors related to
+natural history and specific therapy for underlying malignancy need to
+be evaluated regarding their association to ICU outcomes.
+
+## References
+
+1.  Cheng Q, Tang Y, Yang Q, Wang E, Liu J, Li X. The prognostic factors
+    for patients with hematological malignancies admitted to the
+    intensive care unit. SpringerPlus. 2016;5(1):2038.
+    <doi:10.1186/s40064-016-3714-z>
+2.  Chen CL, Wang ST, Cheng WC, Wu BR, Liao WC, Hsu WH. Outcomes and
+    Prognostic Factors in Critical Patients with Hematologic
+    Malignancies. J Clin Med. 2023;12(3):958. <doi:10.3390/jcm12030958>
+3.  Kalicińska E, Kuszczak B, Dębski J, et al. Hematological
+    malignancies in Polish population: what are the predictors of
+    outcome in patients admitted to Intensive Care Unit? Support Care
+    Cancer. 2021;29(1):323-330. <doi:10.1007/s00520-020-05480-3>
+4.  Al-Zubaidi N, Shehada E, Alshabani K, ZazaDitYafawi J, Kingah P,
+    Soubani AO. Predictors of outcome in patients with hematologic
+    malignancies admitted to the intensive care unit. Hematol Oncol Stem
+    Cell Ther. 2018;11(4):206-218. <doi:10.1016/j.hemonc.2018.03.003>
+5.  Bikmaz ŞGA, Gökçe O, Haşi̇Moğlu MM, et al. Risk factors for ICU
+    mortality in patients with hematological malignancies: a
+    singlecenter, retrospective cohort study from Turkey. Turk J Med
+    Sci. 2023;53(1):340-351. <doi:10.55730/1300-0144.5590>

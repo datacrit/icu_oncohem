@@ -1,5 +1,5 @@
 ---
-title: "Mortality predictors in hematological patients, admitted to intensive care unit: a single-centre observational study"
+title: "Condition-related mortality predictors in patients with hematological malignancies, admitted to intensive care unit:    a single-center observational study"
 author: "Sergei Vladimirov"
 date: "`r Sys.Date()`"
 output: rmarkdown::github_document
@@ -46,19 +46,19 @@ library(sjPlot)
 
 ```
 
-# Abstract
+## Abstract
 
-Purpose:
+*Purpose:*
 Previous research showed conflicting results about mortality predictors in critically ill patients with hematological malignancies (HM). The primary aim of this study was to determine mortality in critically ill patients with HM in intensive care unit (ICU) and to reveal risk factors predicting the outcome.
 
-Methods and materials:
+*Methods and materials:*
 All patients with HM admitted to ICU at our hospital during 1 year were enrolled. Clinical data upon ICU admission was collected and then outcomes were estimated.
 
-Results:
+*Results:*
 ICU mortality was 52% among 98 HM patients.
 According to multivariate analysis, male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with the outcome.
 
-Conclusion:
+*Conclusion:*
 We found three independent predictors for ICU mortality. Further research is
 needed to validate current findings and reveal new mortality predictors in critically ill HM patients.
 
@@ -105,13 +105,13 @@ original_data <- original_data %>%
 ```
 
 
-# Introduction
+## Introduction
 
 Patients with hematologic malignancies (HMs) have an increased risk of death compared to other oncology patients in settings of intensive care unit (ICU). According to previous research1, the predictive value of different admission factors is constantly changing, and several studies on this topic have conflicting results.
 Our research question is addressed to identifying factors in the condition of hematological patients that can predict a poor ICU outcome. The primary aim of this study was to determine ICU mortality and risk factors predicting the outcome of critically ill patients with HMs.
 We hypothesized that there are some significant factors in the condition of HM patients at the moment of ICU admission that are associated with mortality.
 
-# Methods
+## Methods
 
 Our research is an observational, single-center study.
 We retrospectively evaluated baseline characteristics of adult HM patients non-electively admitted to the medical ICU of our hospital from July 1, 2022 to June 30,2023. All the HM diagnoses were based on the pathological examination results or medical records. All data were obtained from a local ICU electronic database.
@@ -181,7 +181,7 @@ All statistical analyses were performed using R version 4.2.1 (R Core Team, 2022
 Сontinuous variables were described as mean (standard deviation), median (25–75 percentiles) and range. We performed a univariate analysis first to calculate the odds ratio (OR) of mortality, and statistically significant factors were then used in a multivariate logistic regression model to determine outcome prediction. Receiver operating curve (ROC) was done for the final model. In this research, all the tests were two-sided, and p < 0.05 was considered as statistically significant.
 
 
-# Results
+## Results
 
 The baseline demographic and clinical characteristics of all 98 patients are given in Table 2. The patients’ mean (SD) age was 64 (14) years, and just over half (55%) were females. Acute leukemia was the most frequent diagnosis (43%), followed by multiple myeloma (26%), then non-Hodgkin’s lymphoma (18%). 48 (49%) of patients had refractory or relapsed disease status. 35 (36%) patients had neutropenia on admission. Median (IQR) time in the ward before admission to ICU was 11 (3, 20) days. Mean (SD) SOFA score on ICU referral was 6.38 (2.37) points, and Charlson Comorbidity Index was 6.1 (2.25) points.
 
@@ -231,55 +231,22 @@ original_data %>%
          subtitle = "All of the slopes are monotonic, i.e. linear")
   
 ```
+
 Three statistically significant factors were identified in univariate model.
 
 ```{r}
-# Basic Logistic Regression Commands
+
 uni_object <-  glm(is_deceased ~ gender + age + sofa + cci +
                        disease_status + days_bfr_icu, data = original_data, family = "binomial")
-
-object <- glm(is_deceased ~ gender + sofa + cci, data = original_data, family = "binomial")
-
-# Model Fit Statistics
-
-#blorr::blr_model_fit_stats(object)        # Gives various fit statistics
- # blorr::blr_test_hosmer_lemeshow(object)   # Hosmer Lemeshow gof test
-#roc_plot <- blorr::blr_roc_curve(blr_gains_table(object), title = "ROC curve for the model, AUC = 0.74" )  # ROC curve
-DescTools::Cstat(object) -> my_cstat              # C-Statistic (concordance statistic)
-  
-sjPlot:: tab_model(object, 
-                    show.intercept = FALSE,
-                    show.aic = TRUE,
-                    show.r2 = FALSE,
-                    title = 'Results of multivariate analysis of factors') -> multivar_table
 
 
 sjPlot:: tab_model(uni_object, 
                     show.intercept = FALSE,
                     show.aic = TRUE,
                     show.r2 = FALSE,
-                    title = 'Results of univariate analysis of factors') -> univar_table
-
-sjPlot:: plot_model(type = "est", object, show.values = TRUE, width = 0.1,
-                   axis.labels = "" , 
-                   title = 'Odds ratio of ICU mortality, multivariate model',
-                   axis.lim = c(0.99,10),
-                   vline.color = 'red') +
-  ylab("Odds ratio with confidence intervals") -> odds_ratio_multi
-
-sjPlot:: plot_model(type = "est", uni_object, show.values = TRUE, width = 0.1,
-                   axis.labels = "" , 
-                   title = 'Odds ratio of ICU mortality, univariate analysis',
-                   axis.lim = c(0.2,10),
-                   vline.color = 'red') +
-  ylab("Odds ratio with confidence intervals") -> odds_ratio_uni
-
-
-univar_table
-
+                    title = 'Results of univariate analysis of factors') 
 
 ```
-
 
 
 Statistically significant variables were checked for multicollinearity (Table 4) and then included into a multivariate regression analysis (Table 5).
@@ -294,17 +261,19 @@ original_data %>%
   add_column(c("gender", "cci", "sofa")) %>% 
   rename(variable = 'c("gender", "cci", "sofa")', GVIF = ".") %>% 
   select(variable, everything()) %>% kable()
-#%>% 
- # flextable() %>% 
- # set_caption(caption = "Generalised variance inflation factor (GVIF)")
+
 ```
 
 
-All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with outcome. Overall performance of multivariate model characterized by Akaike information criterion (AIC)124.71 and area under the curve (AUC) 0.74 (Figure 3).
+All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with outcome. 
+Overall performance of multivariate model characterized by Akaike information criterion (AIC)124.71 and area under the curve (AUC) 0.74 (Figure 3).
 
 
 
 ```{r}
+
+object <- glm(is_deceased ~ gender + sofa + cci, data = original_data, family = "binomial")
+
 sjPlot:: tab_model(object, 
                     show.intercept = FALSE,
                     show.aic = TRUE,
@@ -313,8 +282,60 @@ sjPlot:: tab_model(object,
 ```
 
 ```{r}
+sjPlot:: plot_model(type = "est", object, show.values = TRUE, width = 0.1,
+                   axis.labels = "" , 
+                   title = 'Odds ratio of ICU mortality, multivariate model',
+                   axis.lim = c(0.99,10),
+                   vline.color = 'red') +
+  ylab("Odds ratio with confidence intervals")
+```
+
+
+```{r}
 blorr::blr_roc_curve(blr_gains_table(object), title = "ROC curve for the model, AUC = 0.74" ) 
 ```
+
+## Discussion
+
+To our knowledge, this is the first observational study in Russia to report the prognostic value of condition and comorbidity factors related to ICU mortality in HM population.
+
+We retrospectively evaluated admission data of 98 critically ill patients for prognostic factors for ICU outcome during a 1-year period. The ICU mortality rate in our sample was high (52%). Male sex, high SOFA and CCI scores were associated with ICU mortality both in univariate and multivariate analysis.
+
+Mortality in our study corresponds to the average ICU mortality in previous studies. According to preceding research, ICU mortality in patients with HMs varied between 26 and 84.1%2. This wide range can be explained by differences in admission and discharge policy, severity of condition in study populations, geographic and socioeconomic factors3. We reassessed the prognostic significance of previously published factors for critically ill patients with HMs.
+
+Our findings come in line with prior research in that the severity of organ failure and extent of comorbidity are associated with poor ICU outcomes4,5.
+We did not reveal statistical significance of neutropenia and advanced disease status as prognostic factors, and it corroborates previous studies that defined these factors as controversial.
+
+Our multivariate model revealed male sex as a significant prognostic factor for ICU mortality. At this point, we do not have a firm explanation of this result from neither background nor foreground knowledge, so this finding has to be validated.
+This study has several limitations.
+
+First, due to the retrospective nature of our study some data may have been missed. Second, as this is a single-center study, our findings can hardly be generalized to the entire population.
+
+Third, due to the relatively small sample size we were unable to internally validate the outcome prediction model.
+
+Fourth, our study did not estimate disease-specific factors, except for presence of progression or relapse.
+
+Finally, due to variations in severity of cases, ICU admission and discharge policies, end-of-life-care protocols, we can not directly compare mortality rates to other studies.
+
+## Conclusion
+
+Our results demonstrated that critically ill patients with hematological malignancies have a high mortality.
+We have found that severity of organ failure assessed by SOFA score, high comorbidity and male gender may have an impact on ICU mortality.
+Prospective multicentre studies may help to explore validity of these results.
+Other factors related to natural history and specific therapy for underlying malignancy need to be evaluated regarding their association to ICU outcomes.
+
+## References
+
+1.	Cheng Q, Tang Y, Yang Q, Wang E, Liu J, Li X. The prognostic factors for patients with hematological malignancies admitted to the intensive care unit. SpringerPlus. 2016;5(1):2038. doi:10.1186/s40064-016-3714-z
+2.	Chen CL, Wang ST, Cheng WC, Wu BR, Liao WC, Hsu WH. Outcomes and Prognostic Factors in Critical Patients with Hematologic Malignancies. J Clin Med. 2023;12(3):958. doi:10.3390/jcm12030958
+3.	Kalicińska E, Kuszczak B, Dębski J, et al. Hematological malignancies in Polish population: what are the predictors of outcome in patients admitted to Intensive Care Unit? Support Care Cancer. 2021;29(1):323-330. doi:10.1007/s00520-020-05480-3
+4.	Al-Zubaidi N, Shehada E, Alshabani K, ZazaDitYafawi J, Kingah P, Soubani AO. Predictors of outcome in patients with hematologic malignancies admitted to the intensive care unit. Hematol Oncol Stem Cell Ther. 2018;11(4):206-218. doi:10.1016/j.hemonc.2018.03.003
+5.	Bikmaz ŞGA, Gökçe O, Haşi̇Moğlu MM, et al. Risk factors for ICU mortality in patients with hematological malignancies: a singlecenter, retrospective cohort study from Turkey. Turk J Med Sci. 2023;53(1):340-351. doi:10.55730/1300-0144.5590
+
+ 
+
+
+
 
 
 
