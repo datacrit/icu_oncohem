@@ -118,6 +118,11 @@ We retrospectively evaluated baseline characteristics of adult HM patients non-e
 Cases with a critical amount of missing data, as well as those who died or
 transferred to the floor within 24 hours were excluded from the study.
 
+```{r, out.width="100%"}
+knitr::include_graphics("flow_chart.png")
+```
+Upon ICU admission, we included baseline patients’ information on demographic data, diagnosis, extent of organ dysfunction, comorbidity burden, presence of neutropenia, disease status and number of days in hospital prior to ICU referral. Based on above-mentioned information, independent variables were created, and the outcome of ICU hospitalization was set as a dependent variable (Table 1).
+
 ```{r}
 df_variable <- colnames(original_data)
 
@@ -164,7 +169,6 @@ bind_cols(df_variable, var_definition, var_type, var_status) %>%
   rename( variable = '...1', definition = '...2', type = '...3', status = '...4')
 
 
-
 var_df %>% kable()
 #%>% flextable()
 #  theme_box() %>% 
@@ -172,55 +176,96 @@ var_df %>% kable()
 
 ```
 
-
-Upon ICU admission, we included baseline patients’ information on demographic data, diagnosis, extent of organ dysfunction, comorbidity burden, presence of neutropenia, disease status and number of days in hospital prior to ICU referral. Based on above-mentioned information, independent variables were created, and the outcome of ICU hospitalization was set as a dependent variable (Table 1).
 This study was carried out according to the principles of the Declaration of Helsinki. Approval was granted by the local ethics committee (date: 03.08.2023 / no: 1236). Since we performed a retrospective analysis of routinely collected de-identified data, informed consents from the patients were not required. The trial was registered.
 All statistical analyses were performed using R version 4.2.1 (R Core Team, 2022).
 Сontinuous variables were described as mean (standard deviation), median (25–75 percentiles) and range. We performed a univariate analysis first to calculate the odds ratio (OR) of mortality, and statistically significant factors were then used in a multivariate logistic regression model to determine outcome prediction. Receiver operating curve (ROC) was done for the final model. In this research, all the tests were two-sided, and p < 0.05 was considered as statistically significant.
 
 
-```{r echo=FALSE, include= TRUE, }
-#  Importing and fixing final dataset
+# Results
 
-original_data <- read_csv('final_project_df.csv')
+The baseline demographic and clinical characteristics of all 98 patients are given in Table 2. The patients’ mean (SD) age was 64 (14) years, and just over half (55%) were females. Acute leukemia was the most frequent diagnosis (43%), followed by multiple myeloma (26%), then non-Hodgkin’s lymphoma (18%). 48 (49%) of patients had refractory or relapsed disease status. 35 (36%) patients had neutropenia on admission. Median (IQR) time in the ward before admission to ICU was 11 (3, 20) days. Mean (SD) SOFA score on ICU referral was 6.38 (2.37) points, and Charlson Comorbidity Index was 6.1 (2.25) points.
 
 
-original_data <- original_data %>%
-  mutate_if(is.character, as.factor) %>%
-  mutate(neutropenia = as.factor(neutropenia)) %>% 
-   mutate(
-    resp_insuf = as.factor(case_when(
-      sofa_resp > 0 ~ 1,
-      sofa_resp < 1 ~ 0
-    )),
-    neur_def = as.factor(case_when(
-      sofa_gcs > 0 ~ 1,
-      sofa_gcs < 1 ~ 0
-    )),
-    hep_insuf = as.factor(case_when(
-      sofa_bil > 0 ~ 1,
-      sofa_bil < 1 ~ 0
-    )),
-    hemod_instab = as.factor(case_when(
-      sofa_map > 0 ~ 1,
-      sofa_map < 1 ~ 0
-    )),
-    thrombocytopenia = as.factor(case_when(
-      sofa_plt > 0 ~ 1,
-      sofa_plt < 1 ~ 0
-    )),
-    renal_insuf = as.factor(case_when(
-      sofa_renal > 0 ~ 1,
-      sofa_renal < 1 ~ 0
-    ))
-    ) %>% 
-  select(id, gender, age, cci, diagnosis,
+```{r, out.width="100%"}
+
+original_data %>% 
+  select(gender, age, cci, diagnosis,
          disease_status, days_bfr_icu, 
-         sofa, neutropenia, is_deceased)
+         sofa, neutropenia, is_deceased) %>% 
+  tbl_summary(     
+    by = is_deceased,     # stratify entire table by outcome
+    type = all_continuous() ~ "continuous2",
+    statistic = list(all_continuous() ~ c(
+      "{mean} ({sd})",                             # line 1: mean and SD
+      "{median} ({p25}, {p75})",                   # line 2: median and IQR
+      "{min}, {max}"))) %>% 
+      
+  bold_labels() %>%
+  modify_header(
+    list(
+      stat_1 ~ "**Survived**  \n N = {n}",
+      stat_2 ~ "**Dead**  \n N = {n}")) %>%
+  modify_footnote(update = everything() ~ NA) %>%
+  add_overall() -> desc_table
+# I have experienced some problems with rendering this summary table in github document, so I will upload png with the result
 
+knitr::include_graphics("desc_table.png")
 
 
 ```
+
+The ICU mortality was 52%. We performed univariate analysis (Table 3) to calculate the odds ratio of mortality for each of collected covariates (Table 3). All continuous variables were checked for linearity beforehand (Figure 2).
+
+```{r}
+# Basic Logistic Regression Commands
+uni_object <-  glm(is_deceased ~ gender + age + sofa + cci +
+                       disease_status + days_bfr_icu, data = original_data, family = "binomial")
+
+object <- glm(is_deceased ~ gender + sofa + cci, data = original_data, family = "binomial")
+
+# Model Fit Statistics
+
+#blorr::blr_model_fit_stats(object)        # Gives various fit statistics
+ # blorr::blr_test_hosmer_lemeshow(object)   # Hosmer Lemeshow gof test
+#roc_plot <- blorr::blr_roc_curve(blr_gains_table(object), title = "ROC curve for the model, AUC = 0.74" )  # ROC curve
+DescTools::Cstat(object) -> my_cstat              # C-Statistic (concordance statistic)
+  
+sjPlot:: tab_model(object, 
+                    show.intercept = FALSE,
+                    show.aic = TRUE,
+                    show.r2 = FALSE,
+                    title = 'Results of multivariate analysis of factors') -> multivar_table
+
+
+sjPlot:: tab_model(uni_object, 
+                    show.intercept = FALSE,
+                    show.aic = TRUE,
+                    show.r2 = FALSE,
+                    title = 'Results of univariate analysis of factors') -> univar_table
+
+sjPlot:: plot_model(type = "est", object, show.values = TRUE, width = 0.1,
+                   axis.labels = "" , 
+                   title = 'Odds ratio of ICU mortality, multivariate model',
+                   axis.lim = c(0.99,10),
+                   vline.color = 'red') +
+  ylab("Odds ratio with confidence intervals") -> odds_ratio_multi
+
+sjPlot:: plot_model(type = "est", uni_object, show.values = TRUE, width = 0.1,
+                   axis.labels = "" , 
+                   title = 'Odds ratio of ICU mortality, univariate analysis',
+                   axis.lim = c(0.2,10),
+                   vline.color = 'red') +
+  ylab("Odds ratio with confidence intervals") -> odds_ratio_uni
+
+
+univar_table
+
+
+```
+
+
+
+Statistically significant variables were checked for multicollinearity (Table 4) and then included into a multivariate regression analysis (Table 5). All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026), high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated with outcome. Overall performance of multivariate model characterized by Akaike information criterion (AIC)124.71 and area under the curve (AUC) 0.74 (Figure 3).
 
 
 
