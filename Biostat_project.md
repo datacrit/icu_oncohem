@@ -298,10 +298,9 @@ knitr::include_graphics("desc_table.png")
 
 <img src="desc_table.png" width="100%" style="display: block; margin: auto auto auto 0;" />
 
-The ICU mortality was 52%. We performed univariate analysis (Table 3) to
-calculate the odds ratio of mortality for each of collected covariates
-(Table 3). All continuous variables were checked for linearity
-beforehand (Figure 2).
+The ICU mortality was 52%. We used logistic regression in order to
+reveal factors associated with primary outcome of the study. All
+continuous variables were checked for linearity beforehand (Figure 2).
 
 ``` r
 # code for linearuty checking
@@ -319,17 +318,33 @@ original_data %>%
  #        subtitle = "All of the slopes are monotonic, i.e. linear")
 ```
 
-**Figure 2. Checking numeric variables for linearity.** *All of the
-slopes are monotonic, i.e. linear*
+**Figure 2. Checking numeric variables for linearity.**
+
+*All of the slopes are monotonic, i.e. linear*
+
 <img src="Biostat_project_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto auto auto 0;" />
 
-Three statistically significant factors were identified in univariate
-model.
+Then we performed univariate analysis to calculate the odds ratio of
+mortality for each of collected covariates (Table 3).
+
+``` r
+uni_object <-  glm(is_deceased ~ gender + age + sofa + cci +
+                       disease_status + days_bfr_icu, data = original_data, family = "binomial")
+
+
+sjPlot:: tab_model(uni_object, 
+                    show.intercept = FALSE,
+                    show.aic = TRUE,
+                    show.r2 = FALSE,
+                    title = 'Results of univariate analysis of factors') 
+```
+
+**Table 3. Results of univariate analysis of factors.**
+
+*Three statistically significant factors were identified in univariate
+model: male sex, higher SOFA and higher CCI scores.*
 
 <table style="border-collapse:collapse; border:none;">
-<caption style="font-weight: bold; text-align:left;">
-Results of univariate analysis of factors
-</caption>
 <tr>
 <th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">
  
@@ -455,8 +470,31 @@ AIC
 </table>
 
 Statistically significant variables were checked for multicollinearity
-(Table 4) and then included into a multivariate regression analysis
-(Table 5).
+(Table 4).
+
+For checking for the presence of multicollinearity, we calculated the
+generalised variance inflation factor (GVIF) for each of the parameters
+in the final model.
+
+A commonly accepted rule is that GVIF should not be greater than 5-10
+for any variable, otherwise multicollinearity may exist (6).
+
+``` r
+dependent <- "is_deceased"
+explanatory <- c("gender","cci", "sofa")
+original_data %>% 
+  glmmulti(dependent, explanatory) %>%
+  car::vif() %>%   # selecting GVIF
+  as.data.frame() %>%
+  add_column(c("gender", "cci", "sofa")) %>% 
+  rename(variable = 'c("gender", "cci", "sofa")', GVIF = ".") %>% 
+  select(variable, everything()) %>% kable()
+```
+
+**Table 4. Checking for multicollinearity using GVIF.**
+
+*Values for all of the variables are less then 5, so multicollinearity
+is absent.*
 
 <table>
 <thead>
@@ -508,17 +546,22 @@ sofa
 </tbody>
 </table>
 
-All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026),
-high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson
-Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated
-with outcome. Overall performance of multivariate model characterized by
-Akaike information criterion (AIC)124.71 and area under the curve (AUC)
-0.74 (Figure 3).
+All three varibles were included into a multivariate regression analysis
+(Table 5).
+
+``` r
+object <- glm(is_deceased ~ gender + sofa + cci, data = original_data, family = "binomial")
+
+sjPlot:: tab_model(object, 
+                    show.intercept = FALSE,
+                    show.aic = TRUE,
+                    show.r2 = FALSE)
+#,title = 'Results of multivariate analysis of factors') 
+```
+
+**Table 5. Results of multivariate analysis of factors.**
 
 <table style="border-collapse:collapse; border:none;">
-<caption style="font-weight: bold; text-align:left;">
-Results of multivariate analysis of factors
-</caption>
 <tr>
 <th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">
  
@@ -601,9 +644,35 @@ AIC
 </tr>
 </table>
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+All of included factors - male sex (OR 2.75, CI: 1.15–6.88, p = 0.026),
+high SOFA score (OR 1.30, CI: 1.07–1.62, p = 0.012) and high Charlson
+Comorbidity Index (OR 1.30, CI: 1.06–1.64, p = 0.016) were associated
+with poor outcome.
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+``` r
+sjPlot:: plot_model(type = "est", object, show.values = TRUE, width = 0.1,
+                   axis.labels = "" , 
+                   title = 'Odds ratio of ICU mortality, multivariate model',
+                   axis.lim = c(0.99,10),
+                   vline.color = 'red') +
+  ylab("Odds ratio with confidence intervals")
+```
+
+**Figure 3. Odds ratio of ICU mortality, multivariate model**
+
+![](Biostat_project_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+Overall performance of multivariate model characterized by Akaike
+information criterion (AIC)124.71 and area under the curve (AUC) 0.74
+(Figure 3).
+
+``` r
+blorr::blr_roc_curve(blr_gains_table(object), title = "AUC = 0.74" ) 
+```
+
+**Figure 4. ROC curve for the model.**
+
+![](Biostat_project_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ## Discussion
 
@@ -682,3 +751,5 @@ be evaluated regarding their association to ICU outcomes.
     mortality in patients with hematological malignancies: a
     singlecenter, retrospective cohort study from Turkey. Turk J Med
     Sci. 2023;53(1):340-351. <doi:10.55730/1300-0144.5590>
+6.  Harrison, E., & Pius, R. (2020). R for Health Data Science (1st
+    ed.). Chapman and Hall/CRC. <https://doi.org/10.1201/9780367855420>
