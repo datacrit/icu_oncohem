@@ -3,7 +3,7 @@ malignancies, admitted to intensive care unit: a single-center
 observational study
 ================
 Sergei Vladimirov
-2023-12-27
+2023-12-28
 
 ## Abstract
 
@@ -31,15 +31,20 @@ mortality predictors in critically ill HM patients.
 
 Patients with hematologic malignancies (HMs) have an increased risk of
 death compared to other oncology patients in settings of intensive care
-unit (ICU). According to previous research1, the predictive value of
+unit (ICU). According to previous research, the predictive value of
 different admission factors is constantly changing, and several studies
-on this topic have conflicting results. Our research question is
-addressed to identifying factors in the condition of hematological
-patients that can predict a poor ICU outcome. The primary aim of this
-study was to determine ICU mortality and risk factors predicting the
-outcome of critically ill patients with HMs. We hypothesized that there
-are some significant factors in the condition of HM patients at the
-moment of ICU admission that are associated with mortality.
+on this topic have conflicting results. Some factors, such as age,
+diagnosis of malignancy, and disease status, were proven to be
+irrelevant in more recent studies. The role of other factors, such as
+neutropenia and health condition scores, remains controversial (1-5).
+
+Our research question is addressed to identifying factors in the
+condition of hematological patients that can predict a poor ICU outcome.
+The primary aim of this study was to determine ICU mortality and risk
+factors predicting the outcome of critically ill patients with HMs. We
+hypothesized that there are some significant factors in the condition of
+HM patients at the moment of ICU admission that are associated with
+mortality.
 
 ## Methods
 
@@ -246,14 +251,50 @@ committee (date: 03.08.2023 / no: 1236). Since we performed a
 retrospective analysis of routinely collected de-identified data,
 informed consents from the patients were not required. The trial was
 registered. All statistical analyses were performed using R version
-4.2.1 (R Core Team, 2022). Сontinuous variables were described as mean
-(standard deviation), median (25–75 percentiles) and range. We performed
-a univariate analysis first to calculate the odds ratio (OR) of
-mortality, and statistically significant factors were then used in a
-multivariate logistic regression model to determine outcome prediction.
-Receiver operating curve (ROC) was done for the final model. In this
-research, all the tests were two-sided, and p \< 0.05 was considered as
-statistically significant.
+4.2.1 (R Core Team, 2022).
+
+``` r
+# the list of packages, used in this research
+
+library(knitr)
+library(blorr)
+library(stargazer)
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggthemes)
+library(ggplot2)
+library(finalfit)
+library(janitor)
+library(flextable)
+library(gtsummary)
+library(pROC)
+library(DiagrammeR)
+library(sjPlot)
+```
+
+Сontinuous variables were described as mean (standard deviation), median
+(25–75 percentiles) and range. We performed a univariate analysis first
+to calculate the odds ratio (OR) of mortality, and statistically
+significant factors were then used in a multivariate logistic regression
+model to determine outcome prediction. Receiver operating curve (ROC)
+was done for the final model.
+
+We used logistic regression in order to reveal factors associated with
+primary outcome of the study. This method is commonly used to study
+predictors for binary outcomes in clinical research.
+
+We had to bear in mind several main rules for conducting a correct
+analysis (6) :
+
+1)  Binary outcome variable - in our case, this was death;
+2)  Independence of observations - our observations were not repeated
+    measurements or matched data;
+3)  Linearity of continuous explanatory variables to the outcome.
+    Relationship should be monotonic, meaning that the response go in
+    one direction;
+4)  No multicollinearity - predictor variables should not be highly
+    correlated with each other.
 
 ## Results
 
@@ -298,12 +339,13 @@ knitr::include_graphics("desc_table.png")
 
 <img src="desc_table.png" width="100%" style="display: block; margin: auto auto auto 0;" />
 
-The ICU mortality was 52%. We used logistic regression in order to
-reveal factors associated with primary outcome of the study. All
-continuous variables were checked for linearity beforehand (Figure 2).
+The ICU mortality was 52%.
+
+All continuous predictor variables were checked for linearity (Figure
+2).
 
 ``` r
-# code for linearuty checking
+# code for linearity checking
 
 original_data %>% 
   select(is_deceased, age, cci, sofa, days_bfr_icu) %>% 
@@ -322,7 +364,7 @@ original_data %>%
 
 *All of the slopes are monotonic, i.e. linear*
 
-<img src="Biostat_project_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto auto auto 0;" />
+<img src="Biostat_project_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto auto auto 0;" />
 
 Then we performed univariate analysis to calculate the odds ratio of
 mortality for each of collected covariates (Table 3).
@@ -660,11 +702,19 @@ sjPlot:: plot_model(type = "est", object, show.values = TRUE, width = 0.1,
 
 **Figure 3. Odds ratio of ICU mortality, multivariate model**
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Biostat_project_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Overall performance of multivariate model characterized by Akaike
 information criterion (AIC)124.71 and area under the curve (AUC) 0.74
-(Figure 3).
+(Figure 4).
+
+The C-statistic or area under the receiver operator curve (ROC) is a
+measure of model discrimination and has a range from 0.5 to 1.0, with
+0.5 equal to chance and 1.0 equal to perfect fit. If we randomly select
+a deceased patient and a survived patient, the c-statistic would
+represent the likelihood that the model predicts the first patient as
+being more prone to mortality compared to the second patient. In our
+case, the model’s accuracy would be approximately 74% (AUC 0.74).
 
 ``` r
 blorr::blr_roc_curve(blr_gains_table(object), title = "AUC = 0.74" ) 
@@ -672,7 +722,7 @@ blorr::blr_roc_curve(blr_gains_table(object), title = "AUC = 0.74" )
 
 **Figure 4. ROC curve for the model.**
 
-![](Biostat_project_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Biostat_project_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ## Discussion
 
@@ -688,10 +738,10 @@ multivariate analysis.
 
 Mortality in our study corresponds to the average ICU mortality in
 previous studies. According to preceding research, ICU mortality in
-patients with HMs varied between 26 and 84.1%2. This wide range can be
-explained by differences in admission and discharge policy, severity of
-condition in study populations, geographic and socioeconomic factors3.
-We reassessed the prognostic significance of previously published
+patients with HMs varied between 26 and 84.1% (1). This wide range can
+be explained by differences in admission and discharge policy, severity
+of condition in study populations, geographic and socioeconomic factors
+(3). We reassessed the prognostic significance of previously published
 factors for critically ill patients with HMs.
 
 Our findings come in line with prior research in that the severity of
