@@ -58,7 +58,8 @@ amount of missing data, as well as those who died or transferred to the
 floor within 24 hours were excluded from the study.
 
 **Figure 1. Flowchart of the study**
-<img src="flow_chart.png" title="Figure 1. Flowchart od the study" alt="Figure 1. Flowchart od the study" width="70%" style="display: block; margin: auto auto auto 0;" />
+
+<img src="flow_chart.png" title="Figure 1. Flowchart od the study" alt="Figure 1. Flowchart od the study" width="80%" style="display: block; margin: auto auto auto 0;" />
 
 Upon ICU admission, we included baseline patients’ information on
 demographic data, diagnosis, extent of organ dysfunction, comorbidity

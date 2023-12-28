@@ -78,7 +78,8 @@ Cases with a critical amount of missing data, as well as those who died or
 transferred to the floor within 24 hours were excluded from the study.
 
 **Figure 1. Flowchart of the study**
-```{r, out.width="70%", echo=FALSE, fig.cap = "Figure 1. Flowchart od the study", fig.align='left'}
+
+```{r, out.width="80%", echo=FALSE, fig.cap = "Figure 1. Flowchart od the study", fig.align='left'}
 
 
 # code for this plot (could not render it in github document, works in html output)
